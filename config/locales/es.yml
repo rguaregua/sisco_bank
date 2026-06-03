@@ -1,0 +1,12 @@
+es:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Registro invalido: %{errors}"
+      models:
+        client:
+          attributes:
+            document_expires_at:
+              invalid_date: "debe ser mayor a la fecha de emisión"
+            primary_phone:
+              invalid_format: "debe ser numérico y comenzar con cero"
