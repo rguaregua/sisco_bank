@@ -1,8 +1,15 @@
 es:
+  date:
+    formats:
+      default: "%d-%m-%Y"
+  time:
+    formats:
+      default: "%d-%m-%Y %H:%M"
   activerecord:
     errors:
       messages:
         record_invalid: "Registro invalido: %{errors}"
+        taken: "ya esta en uso"
       models:
         client:
           attributes:

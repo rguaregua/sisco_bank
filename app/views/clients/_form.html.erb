@@ -1,0 +1,106 @@
+<section class="card">
+  <% if client.errors.any? %>
+    <div class="form-errors">
+      <h3>No se pudo guardar el cliente</h3>
+      <ul>
+        <% client.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: client, local: true do |f| %>
+    <div class="form-grid">
+      <div>
+        <%= f.label :type_of_person, "Tipo de persona" %>
+        <%= f.select :type_of_person,
+          options_for_select(Client::PERSON_TYPES, client.type_of_person),
+          { prompt: "Selecciona" },
+          class: "input", id: "type_of_person_field" %>
+      </div>
+
+      <div>
+        <%= f.label :type_of_document, "Tipo de documento" %>
+        <%= f.select :type_of_document,
+          options_for_select(Client::DOC_TYPES, client.type_of_document),
+          { prompt: "Selecciona" },
+          class: "input", id: "type_of_document_field" %>
+      </div>
+
+      <div>
+        <%= f.label :document_number, "Numero de documento" %>
+        <%= f.text_field :document_number, class: "input" %>
+      </div>
+
+      <div>
+        <%= f.label :full_name, "Nombre completo" %>
+        <%= f.text_field :full_name, class: "input" %>
+      </div>
+
+      <div>
+        <%= f.label :email, "Correo" %>
+        <%= f.email_field :email, class: "input" %>
+      </div>
+
+      <div>
+        <%= f.label :primary_phone, "Telefono principal" %>
+        <%= f.text_field :primary_phone, class: "input" %>
+      </div>
+
+      <div>
+        <%= f.label :secondary_phone, "Telefono secundario" %>
+        <%= f.text_field :secondary_phone, class: "input" %>
+      </div>
+
+      <div>
+        <%= f.label :document_issued_at, "Fecha emision (DD-MM-AAAA)" %>
+        <%= f.text_field :document_issued_at, value: @document_issued_at_input, class: "input", placeholder: "15-01-2020" %>
+      </div>
+
+      <div>
+        <%= f.label :document_expires_at, "Fecha vencimiento (DD-MM-AAAA)" %>
+        <%= f.text_field :document_expires_at, value: @document_expires_at_input, class: "input", placeholder: "15-01-2030" %>
+      </div>
+    </div>
+
+    <div class="actions-row u-mt-md">
+      <%= f.submit class: "btn btn-primary" %>
+      <%= link_to "Cancelar", clients_path, class: "btn btn-soft" %>
+    </div>
+  <% end %>
+</section>
+
+<script>
+  (() => {
+    const personField = document.getElementById("type_of_person_field");
+    const docField = document.getElementById("type_of_document_field");
+    if (!personField || !docField) return;
+
+    const allowedByPerson = {
+      Natural: ["Cedula", "Pasaporte"],
+      Juridica: ["RIF"]
+    };
+
+    const refreshDocOptions = () => {
+      const person = personField.value;
+      const allowed = allowedByPerson[person] || ["Cedula", "Pasaporte", "RIF"];
+      const current = docField.value;
+
+      Array.from(docField.options).forEach((opt) => {
+        if (!opt.value) {
+          opt.hidden = false;
+          return;
+        }
+        opt.hidden = !allowed.includes(opt.value);
+      });
+
+      if (current && !allowed.includes(current)) {
+        docField.value = "";
+      }
+    };
+
+    personField.addEventListener("change", refreshDocOptions);
+    refreshDocOptions();
+  })();
+</script>

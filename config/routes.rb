@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  root "clients#index"
+  resources :clients
+
   namespace :api do
     namespace :v1 do
       scope :clients, controller: :clients do

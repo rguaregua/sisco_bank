@@ -1,0 +1,32 @@
+<section class="card">
+  <h2><%= @client.full_name %></h2>
+  <p class="muted">Detalle del cliente</p>
+
+  <div class="detail-grid">
+    <div><strong>ID:</strong> <%= @client.id %></div>
+    <div><strong>Tipo persona:</strong> <%= @client.type_of_person %></div>
+    <div><strong>Tipo documento:</strong> <%= @client.type_of_document %></div>
+    <div><strong>Numero documento:</strong> <%= @client.document_number %></div>
+    <div><strong>Fecha emision:</strong> <%= @client.document_issued_at&.strftime("%d-%m-%Y") %></div>
+    <div><strong>Fecha vencimiento:</strong> <%= @client.document_expires_at&.strftime("%d-%m-%Y") %></div>
+    <div><strong>Correo:</strong> <%= @client.email %></div>
+    <div><strong>Telefono principal:</strong> <%= @client.primary_phone %></div>
+    <div><strong>Telefono secundario:</strong> <%= @client.secondary_phone.presence || "-" %></div>
+    <div><strong>Creado:</strong> <%= l(@client.created_at) %></div>
+  </div>
+
+  <div class="actions-row u-mt-md">
+    <%= link_to "#{client_path(@client)}/edit", class: "btn btn-primary btn-icon", title: "Editar cliente", aria: { label: "Editar cliente" } do %>
+      <i class="bi bi-pencil-square" aria-hidden="true"></i>
+      <span class="btn-label">Editar</span>
+    <% end %>
+    <%= button_to client_path(@client), method: :delete, data: { turbo_confirm: "Deseas eliminar este cliente?" }, class: "btn btn-danger btn-icon", title: "Eliminar cliente", aria: { label: "Eliminar cliente" } do %>
+      <i class="bi bi-trash" aria-hidden="true"></i>
+      <span class="btn-label">Eliminar</span>
+    <% end %>
+    <%= link_to clients_path, class: "btn btn-soft btn-icon", title: "Volver al listado", aria: { label: "Volver al listado" } do %>
+      <i class="bi bi-arrow-left" aria-hidden="true"></i>
+      <span class="btn-label">Volver</span>
+    <% end %>
+  </div>
+</section>

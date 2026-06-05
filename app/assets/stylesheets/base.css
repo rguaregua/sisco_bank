@@ -1,0 +1,93 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-soft: #eef3f7;
+  --text: #1a2530;
+  --text-soft: #5d6b79;
+  --primary: #0059a8;
+  --primary-strong: #003f79;
+  --danger: #b83232;
+  --ok: #1f7a3a;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top right, #dce9f6 0, var(--bg) 45%);
+  color: var(--text);
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.topbar {
+  background: linear-gradient(110deg, var(--primary), #0c79d7);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 24px rgba(0, 38, 73, 0.16);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.topbar p {
+  margin: 8px 0 0;
+  opacity: 0.92;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(20, 33, 47, 0.08);
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.flash {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.flash.notice {
+  background: #e8f8ee;
+  color: var(--ok);
+  border: 1px solid #bde8cb;
+}
+
+.flash.alert {
+  background: #fdeeee;
+  color: var(--danger);
+  border: 1px solid #f7c0c0;
+}
+
+.muted {
+  color: var(--text-soft);
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 16px 12px 28px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+}
