@@ -17,7 +17,7 @@
         <%= f.select :type_of_person,
           options_for_select(Client::PERSON_TYPES, client.type_of_person),
           { prompt: "Selecciona" },
-          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", id: "type_of_person_field", required: true %>
+          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true %>
       </div>
 
       <div>
@@ -25,7 +25,7 @@
         <%= f.select :type_of_document,
           options_for_select(Client::DOC_TYPES, client.type_of_document),
           { prompt: "Selecciona" },
-          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", id: "type_of_document_field", required: true %>
+          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true %>
       </div>
 
       <div>
@@ -34,8 +34,8 @@
       </div>
 
       <div>
-        <%= f.label :full_name, "Nombre completo o razón social", class: "text-sm font-semibold text-slate-700", id: "full_name_label" %>
-        <%= f.text_field :full_name, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true, id: "full_name_field", pattern: "[A-Za-zÁÉÍÓÚáéíóúÑñ ]+", title: "Solo letras y espacios" %>
+        <%= f.label :full_name, "Nombre completo o razón social", class: "text-sm font-semibold text-slate-700" %>
+        <%= f.text_field :full_name, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true, pattern: "[A-Za-zÁÉÍÓÚáéíóúÑñ ]+", title: "Solo letras y espacios" %>
       </div>
 
       <div>
@@ -45,12 +45,12 @@
 
       <div>
         <%= f.label :primary_phone, "Telefono principal", class: "text-sm font-semibold text-slate-700" %>
-        <%= f.text_field :primary_phone, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true, id: "primary_phone_field", placeholder: "0XXXXXXXXXX", inputmode: "numeric", minlength: 11, maxlength: 11, pattern: "0[0-9]{10}", title: "Debe tener 11 digitos e iniciar con 0" %>
+        <%= f.text_field :primary_phone, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true, placeholder: "0XXXXXXXXXX", inputmode: "numeric", minlength: 11, maxlength: 11, pattern: "0[0-9]{10}", title: "Debe tener 11 digitos e iniciar con 0" %>
       </div>
 
       <div>
         <%= f.label :secondary_phone, "Telefono secundario", class: "text-sm font-semibold text-slate-700" %>
-        <%= f.text_field :secondary_phone, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", id: "secondary_phone_field", placeholder: "0XXXXXXXXXX", inputmode: "numeric", minlength: 11, maxlength: 11, pattern: "0[0-9]{10}", title: "Debe tener 11 digitos e iniciar con 0" %>
+        <%= f.text_field :secondary_phone, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", placeholder: "0XXXXXXXXXX", inputmode: "numeric", minlength: 11, maxlength: 11, pattern: "0[0-9]{10}", title: "Debe tener 11 digitos e iniciar con 0" %>
       </div>
 
       <div>
@@ -72,85 +72,3 @@
     </div>
   <% end %>
 </section>
-
-<script>
-  (() => {
-    const personField = document.getElementById("type_of_person_field");
-    const docField = document.getElementById("type_of_document_field");
-    const fullNameLabel = document.getElementById("full_name_label");
-    const fullNameField = document.getElementById("full_name_field");
-    const primaryPhoneField = document.getElementById("primary_phone_field");
-    const secondaryPhoneField = document.getElementById("secondary_phone_field");
-    if (!personField || !docField) return;
-
-    const allowedByPerson = {
-      Natural: ["Cedula", "Pasaporte"],
-      Juridica: ["RIF"]
-    };
-
-    const formatPhone = (value) => {
-      return (value || "").replace(/\D/g, "").slice(0, 11);
-    };
-
-    const applyPhoneValidationMessage = (field) => {
-      if (!field) return;
-      const digits = (field.value || "").replace(/\D/g, "");
-      if (!digits.length) {
-        field.setCustomValidity("");
-        return;
-      }
-      if (!/^0\d{10}$/.test(digits)) {
-        field.setCustomValidity("El telefono debe tener 11 digitos e iniciar con cero");
-      } else {
-        field.setCustomValidity("");
-      }
-    };
-
-    const bindPhoneMask = (field) => {
-      if (!field) return;
-      field.addEventListener("input", () => {
-        field.value = formatPhone(field.value);
-        applyPhoneValidationMessage(field);
-      });
-      field.addEventListener("blur", () => applyPhoneValidationMessage(field));
-      field.value = formatPhone(field.value);
-      applyPhoneValidationMessage(field);
-    };
-
-    const refreshFullNameLabel = () => {
-      if (!fullNameLabel || !fullNameField) return;
-      if (personField.value === "Juridica") {
-        fullNameLabel.textContent = "Razon social";
-        fullNameField.placeholder = "Ej: Inversiones Los Andes";
-      } else {
-        fullNameLabel.textContent = "Nombre completo";
-        fullNameField.placeholder = "Ej: Jose Perez";
-      }
-    };
-
-    const refreshDocOptions = () => {
-      const person = personField.value;
-      const allowed = allowedByPerson[person] || ["Cedula", "Pasaporte", "RIF"];
-      const current = docField.value;
-
-      Array.from(docField.options).forEach((opt) => {
-        if (!opt.value) {
-          opt.hidden = false;
-          return;
-        }
-        opt.hidden = !allowed.includes(opt.value);
-      });
-
-      if (current && !allowed.includes(current)) {
-        docField.value = "";
-      }
-
-      refreshFullNameLabel();
-    };
-
-    personField.addEventListener("change", refreshDocOptions);
-    bindPhoneMask(primaryPhoneField);
-    bindPhoneMask(secondaryPhoneField);
-    refreshDocOptions();
-  })();
-</script>
