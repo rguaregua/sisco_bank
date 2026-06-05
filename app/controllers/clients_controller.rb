@@ -43,7 +43,7 @@ class ClientsController < ApplicationController
 
   def destroy
     @client_service.delete_client(@client.id)
-    redirect_to clients_path, notice: "Cliente eliminado correctamente"
+    redirect_to clients_path, notice: "Cliente eliminado correctamente", status: :see_other
   end
 
   private

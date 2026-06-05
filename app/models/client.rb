@@ -4,6 +4,16 @@ class Client < ApplicationRecord
 
   PERSON_TYPES = ["Natural", "Juridica"].freeze
   DOC_TYPES = ["Cedula", "Pasaporte", "RIF"].freeze
+  ALLOWED_DOC_TYPES_BY_PERSON = {
+    "Natural" => ["Cedula", "Pasaporte"],
+    "Juridica" => ["RIF"]
+  }.freeze
+  INVALID_DOC_ERROR_BY_PERSON = {
+    "Natural" => "inválido para Persona Natural",
+    "Juridica" => "debe ser RIF para Persona Jurídica"
+  }.freeze
+  RIF_FORMAT = /\A[JGVEP]-\d{8}-\d\z/
+  CEDULA_FORMAT = /\A[VE]-\d{6,8}\z/
 
   before_validation :normalize_email
   before_validation :normalize_phone_numbers
@@ -28,6 +38,9 @@ class Client < ApplicationRecord
 
   validate :expiration_date_cannot_be_prior_to_issue_date
   validate :document_type_matches_person_type
+  validate :rif_number_format_for_juridica
+  validate :cedula_number_format_for_natural
+  validate :person_and_document_type_immutable_on_update, on: :update
 
   private
 
@@ -41,11 +54,29 @@ class Client < ApplicationRecord
   def document_type_matches_person_type
     return unless type_of_person.present? && type_of_document.present?
 
-    if type_of_person == "Natural" && !["Cedula", "Pasaporte"].include?(type_of_document)
-      errors.add(:type_of_document, "inválido para Persona Natural")
-    elsif type_of_person == "Juridica" && type_of_document != "RIF"
-      errors.add(:type_of_document, "debe ser RIF para Persona Jurídica")
-    end
+    allowed_types = ALLOWED_DOC_TYPES_BY_PERSON[type_of_person]
+    return if allowed_types.blank? || allowed_types.include?(type_of_document)
+
+    errors.add(:type_of_document, INVALID_DOC_ERROR_BY_PERSON.fetch(type_of_person, "no corresponde al tipo de persona"))
+  end
+
+  def rif_number_format_for_juridica
+    return unless type_of_person == "Juridica" && type_of_document == "RIF"
+    return if document_number.present? && document_number.match?(RIF_FORMAT)
+
+    errors.add(:document_number, "debe tener formato RIF valido (Ej: J-12345678-9)")
+  end
+
+  def cedula_number_format_for_natural
+    return unless type_of_person == "Natural" && type_of_document == "Cedula"
+    return if document_number.present? && document_number.match?(CEDULA_FORMAT)
+
+    errors.add(:document_number, "debe tener formato de cédula valido (Ej: V-12345678)")
+  end
+
+  def person_and_document_type_immutable_on_update
+    errors.add(:type_of_person, "no se puede modificar una vez creado") if will_save_change_to_type_of_person?
+    errors.add(:type_of_document, "no se puede modificar una vez creado") if will_save_change_to_type_of_document?
   end
 
   def normalize_email

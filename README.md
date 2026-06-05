@@ -9,90 +9,84 @@ Aplicacion Rails para gestion de clientes con validaciones de negocio, interfaz 
 - PostgreSQL 14+
 - Node.js (solo si usas bin/dev para entorno de desarrollo)
 
-## Instalacion
+## Instalacion backend (primer arranque)
 
-1. Clonar el repositorio y entrar al proyecto.
-
-2. Instalar dependencias Ruby:
+1. Clona el repo y entra al proyecto.
+2. Asegura que PostgreSQL este levantado en tu maquina (puerto 5432 por defecto).
+3. Ejecuta este bloque en orden:
 
 ```bash
+# Dependencias
 bundle install
-```
 
-3. Crear y preparar base de datos (crea, migra y carga schema si aplica):
-
-```bash
+# Base de datos local (development + test)
 bin/rails db:prepare
-```
 
-4. Levantar aplicacion:
+# (Opcional) datos iniciales
+bin/rails db:seed
 
-```bash
+# Levantar backend
 bin/rails server -p 8020
 ```
 
-Alternativa recomendada para desarrollo completo:
+4. Verifica que el backend responde:
 
 ```bash
-bin/dev
+curl -I http://localhost:8020
+curl http://localhost:8020/api/v1/clients
 ```
 
-## Migraciones ejecutables
+Si PostgreSQL usa otro usuario/password/host, exporta DATABASE_URL antes de correr db:prepare.
 
-Comandos estandar para manejo de migraciones:
-
-```bash
-# Ejecutar migraciones pendientes
-bin/rails db:migrate
-
-# Ver estado de migraciones
-bin/rails db:migrate:status
-
-# Revertir la ultima migracion
-bin/rails db:rollback
-```
-
-Para entorno nuevo o cuando quieras preparar todo en un paso:
+## Comandos utiles (referencia)
 
 ```bash
-bin/rails db:prepare
-```
+# 1) Instalacion
+bundle install
 
-Si tu base local quedo desalineada por cambios en historial de migraciones:
+# 2) Base de datos
+bin/rails db:prepare          # crea/migra/carga schema
+bin/rails db:migrate          # ejecuta migraciones pendientes
+bin/rails db:migrate:status   # estado de migraciones
+bin/rails db:rollback         # revierte la ultima migracion
+bin/rails db:migrate:reset    # reinicia DB local y vuelve a migrar
+bin/rails db:seed             # carga datos iniciales (si existen)
 
-```bash
-bin/rails db:migrate:reset
-```
+# 3) Ejecutar la app
+bin/rails server -p 8020      # servidor rails
+bin/dev                       # entorno desarrollo completo
 
-## Datos iniciales
-
-Si agregas seeds en [db/seeds.rb](db/seeds.rb), puedes cargarlos con:
-
-```bash
-bin/rails db:seed
-```
-
-## Pruebas
-
-Ejecutar toda la suite:
-
-```bash
+# 4) Pruebas
 bundle exec rspec
-```
-
-Ejecutar solo pruebas de servicio de clientes:
-
-```bash
 bundle exec rspec spec/services/client_management_service_spec.rb
-```
 
-## Calidad de codigo
-
-```bash
+# 5) Calidad de codigo
 bin/rubocop
 bin/brakeman
 bin/bundler-audit
 ```
+
+## Endpoints
+
+### Web (HTML)
+
+- `GET /` -> listado de clientes (root)
+- `GET /clients` -> listado de clientes
+- `GET /clients/new` -> formulario de creacion
+- `POST /clients` -> crear cliente
+- `GET /clients/:id/edit` -> formulario de edicion
+- `PATCH/PUT /clients/:id` -> actualizar cliente
+- `DELETE /clients/:id` -> eliminar cliente
+
+### API (JSON)
+
+- `GET /api/v1/clients` -> listar clientes (paginacion/filtros)
+- `GET /api/v1/clients/:id` -> detalle de cliente
+- `POST /api/v1/clients` -> crear cliente
+- `PUT /api/v1/clients/:id` -> actualizar cliente
+- `DELETE /api/v1/clients/:id` -> eliminar cliente
+
+Filtros soportados en listado API/Web: `page`, `per_page`, `name`, `document`, `type_of_person`.
 
 ## Estructura principal
 

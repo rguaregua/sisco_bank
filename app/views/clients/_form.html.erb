@@ -10,6 +10,14 @@
     </div>
   <% end %>
 
+  <% document_options_by_person = {
+    "Natural" => ["Cedula", "Pasaporte"],
+    "Juridica" => ["RIF"]
+  } %>
+  <% selected_person = client.type_of_person.presence || "Natural" %>
+  <% available_document_options = document_options_by_person.fetch(selected_person, Client::DOC_TYPES) %>
+  <% editing_client = client.persisted? %>
+
   <%= form_with model: client, local: true do |f| %>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div>
@@ -17,20 +25,32 @@
         <%= f.select :type_of_person,
           options_for_select(Client::PERSON_TYPES, client.type_of_person),
           { prompt: "Selecciona" },
-          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true %>
+          class: "mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 #{editing_client ? 'cursor-not-allowed bg-slate-100' : 'bg-white'}", required: true,
+          id: "client_type_of_person",
+          disabled: editing_client,
+          data: { document_options_by_person: document_options_by_person.to_json } %>
       </div>
 
       <div>
         <%= f.label :type_of_document, "Tipo de documento", class: "text-sm font-semibold text-slate-700" %>
         <%= f.select :type_of_document,
-          options_for_select(Client::DOC_TYPES, client.type_of_document),
+          options_for_select(available_document_options, client.type_of_document),
           { prompt: "Selecciona" },
-          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true %>
+          class: "mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 #{editing_client ? 'cursor-not-allowed bg-slate-100' : 'bg-white'}", required: true,
+          id: "client_type_of_document",
+          disabled: editing_client %>
+        <% if editing_client %>
+          <p class="mt-1 text-xs text-slate-500">Este campo no se puede modificar despues de crear el cliente.</p>
+        <% end %>
       </div>
 
       <div>
         <%= f.label :document_number, "Numero de documento", class: "text-sm font-semibold text-slate-700" %>
-        <%= f.text_field :document_number, class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200", required: true %>
+        <%= f.text_field :document_number,
+          id: "client_document_number",
+          class: "mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200",
+          required: true,
+          placeholder: "Numero de documento" %>
       </div>
 
       <div>
@@ -72,3 +92,127 @@
     </div>
   <% end %>
 </section>
+
+<script>
+  (() => {
+    const personSelect = document.getElementById("client_type_of_person");
+    const documentSelect = document.getElementById("client_type_of_document");
+    const documentNumberInput = document.getElementById("client_document_number");
+    if (!personSelect || !documentSelect || !documentNumberInput) return;
+
+    let optionsByPerson = {};
+
+    try {
+      optionsByPerson = JSON.parse(personSelect.dataset.documentOptionsByPerson || "{}");
+    } catch (_error) {
+      optionsByPerson = {};
+    }
+
+    const rifLetters = ["J", "G", "V", "E", "P"];
+    const cedulaLetters = ["V", "E"];
+
+    const applyRifMask = (rawValue) => {
+      const sanitized = String(rawValue || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (!sanitized) return "";
+
+      const firstChar = sanitized.charAt(0);
+      const hasValidPrefix = rifLetters.includes(firstChar);
+      const letter = hasValidPrefix ? firstChar : "J";
+      const numericPart = (hasValidPrefix ? sanitized.slice(1) : sanitized).replace(/\D/g, "").slice(0, 9);
+
+      const main = numericPart.slice(0, 8);
+      const verifier = numericPart.slice(8, 9);
+
+      let masked = letter;
+      if (main.length) masked += `-${main}`;
+      if (verifier.length) masked += `-${verifier}`;
+
+      return masked;
+    };
+
+    const applyCedulaMask = (rawValue) => {
+      const sanitized = String(rawValue || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (!sanitized) return "";
+
+      const firstChar = sanitized.charAt(0);
+      const hasValidPrefix = cedulaLetters.includes(firstChar);
+      const letter = hasValidPrefix ? firstChar : "V";
+      const numericPart = (hasValidPrefix ? sanitized.slice(1) : sanitized).replace(/\D/g, "").slice(0, 8);
+
+      let masked = letter;
+      if (numericPart.length) masked += `-${numericPart}`;
+
+      return masked;
+    };
+
+    const syncDocumentNumberBehavior = () => {
+      const rifSelected = personSelect.value === "Juridica" && documentSelect.value === "RIF";
+      const cedulaSelected = personSelect.value === "Natural" && documentSelect.value === "Cedula";
+
+      if (rifSelected) {
+        documentNumberInput.placeholder = "J-12345678-9";
+        documentNumberInput.maxLength = 12;
+        documentNumberInput.setAttribute("pattern", "[JGVEP]-[0-9]{8}-[0-9]{1}");
+        documentNumberInput.setAttribute("title", "Formato RIF: J-12345678-9");
+        documentNumberInput.value = applyRifMask(documentNumberInput.value);
+      } else if (cedulaSelected) {
+        documentNumberInput.placeholder = "V-12345678";
+        documentNumberInput.maxLength = 10;
+        documentNumberInput.setAttribute("pattern", "[VE]-[0-9]{6,8}");
+        documentNumberInput.setAttribute("title", "Formato cédula: V-12345678 o E-12345678");
+        documentNumberInput.value = applyCedulaMask(documentNumberInput.value);
+      } else {
+        documentNumberInput.placeholder = "Numero de documento";
+        documentNumberInput.maxLength = 30;
+        documentNumberInput.removeAttribute("pattern");
+        documentNumberInput.removeAttribute("title");
+      }
+    };
+
+    const rebuildDocumentOptions = () => {
+      const selectedPerson = personSelect.value;
+      const allowedOptions = optionsByPerson[selectedPerson] || [];
+      const previousValue = documentSelect.value;
+
+      documentSelect.innerHTML = "";
+
+      const promptOption = document.createElement("option");
+      promptOption.value = "";
+      promptOption.textContent = "Selecciona";
+      documentSelect.appendChild(promptOption);
+
+      allowedOptions.forEach((optionValue) => {
+        const option = document.createElement("option");
+        option.value = optionValue;
+        option.textContent = optionValue;
+        documentSelect.appendChild(option);
+      });
+
+      if (allowedOptions.includes(previousValue)) {
+        documentSelect.value = previousValue;
+      } else {
+        documentSelect.value = "";
+      }
+
+      syncDocumentNumberBehavior();
+    };
+
+    personSelect.addEventListener("change", rebuildDocumentOptions);
+    documentSelect.addEventListener("change", syncDocumentNumberBehavior);
+    documentNumberInput.addEventListener("input", () => {
+      const rifSelected = personSelect.value === "Juridica" && documentSelect.value === "RIF";
+      const cedulaSelected = personSelect.value === "Natural" && documentSelect.value === "Cedula";
+
+      if (rifSelected) {
+        documentNumberInput.value = applyRifMask(documentNumberInput.value);
+        return;
+      }
+
+      if (cedulaSelected) {
+        documentNumberInput.value = applyCedulaMask(documentNumberInput.value);
+      }
+    });
+
+    rebuildDocumentOptions();
+  })();
+</script>
