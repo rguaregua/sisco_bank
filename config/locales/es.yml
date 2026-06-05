@@ -1,4 +1,11 @@
 es:
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "no puede estar en blanco"
+      invalid: "es inválido"
+      inclusion: "no está incluido en la lista"
+      taken: "ya está en uso"
   date:
     formats:
       default: "%d-%m-%Y"
@@ -6,14 +13,29 @@ es:
     formats:
       default: "%d-%m-%Y %H:%M"
   activerecord:
+    attributes:
+      client:
+        type_of_person: "Tipo de persona"
+        type_of_document: "Tipo de documento"
+        document_number: "Número de documento"
+        document_issued_at: "Fecha de emisión del documento"
+        document_expires_at: "Fecha de vencimiento del documento"
+        full_name: "Nombre completo o razón social"
+        email: "Correo electrónico"
+        primary_phone: "Teléfono principal"
+        secondary_phone: "Teléfono secundario"
     errors:
       messages:
-        record_invalid: "Registro invalido: %{errors}"
-        taken: "ya esta en uso"
+        record_invalid: "Registro inválido: %{errors}"
+        taken: "ya está en uso"
       models:
         client:
           attributes:
+            full_name:
+              invalid: "solo puede contener letras, espacios, acentos y la letra ñ"
             document_expires_at:
               invalid_date: "debe ser mayor a la fecha de emisión"
             primary_phone:
-              invalid_format: "debe ser numérico y comenzar con cero"
+              invalid_format: "debe ser numérico, iniciar con cero y tener 11 dígitos"
+            secondary_phone:
+              invalid_format: "debe ser numérico, iniciar con cero y tener 11 dígitos"

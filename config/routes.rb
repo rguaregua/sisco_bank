@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   root "clients#index"
-  resources :clients
+  resources :clients, except: [:show]
 
   namespace :api do
     namespace :v1 do

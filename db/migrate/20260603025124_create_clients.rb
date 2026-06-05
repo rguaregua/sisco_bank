@@ -19,6 +19,7 @@ class CreateClients < ActiveRecord::Migration[8.1]
     # Restricciones de unicidad e indices de busqueda indexada a nivel BD
     add_index :clients, :document_number, unique: true
     add_index :clients, :email, unique: true
+    add_index :clients, :primary_phone
     add_index :clients, :deleted_at
   end
 end

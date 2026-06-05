@@ -1,12 +1,10 @@
 class ClientsController < ApplicationController
   before_action :initialize_service
-  before_action :set_client, only: %i[show edit update destroy]
+  before_action :set_client, only: %i[edit update destroy]
 
   def index
     @clients = @client_service.list_clients(index_query_params)
   end
-
-  def show; end
 
   def new
     @client = Client.new
@@ -19,7 +17,7 @@ class ClientsController < ApplicationController
     date_errors.each { |error| @client.errors.add(:base, error) }
 
     if date_errors.empty? && @client.save
-      redirect_to client_path(@client), notice: "Cliente creado correctamente"
+      redirect_to clients_path, notice: "Cliente creado correctamente"
     else
       set_date_inputs_from_params
       render :new, status: :unprocessable_entity
@@ -36,7 +34,7 @@ class ClientsController < ApplicationController
     date_errors.each { |error| @client.errors.add(:base, error) }
 
     if date_errors.empty? && @client.save
-      redirect_to client_path(@client), notice: "Cliente actualizado correctamente"
+      redirect_to clients_path, notice: "Cliente actualizado correctamente"
     else
       set_date_inputs_from_params
       render :edit, status: :unprocessable_entity
@@ -100,8 +98,8 @@ class ClientsController < ApplicationController
   end
 
   def set_date_inputs_from_client
-    @document_issued_at_input = @client.document_issued_at&.strftime("%d-%m-%Y")
-    @document_expires_at_input = @client.document_expires_at&.strftime("%d-%m-%Y")
+    @document_issued_at_input = @client.document_issued_at&.strftime("%Y-%m-%d")
+    @document_expires_at_input = @client.document_expires_at&.strftime("%Y-%m-%d")
   end
 
   def set_date_inputs_from_params
