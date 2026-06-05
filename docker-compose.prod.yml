@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sisco_bank_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sisco_bank_production
+      POSTGRES_USER: sisco_bank
+      POSTGRES_PASSWORD: ${SISCO_BANK_DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sisco_bank -d sisco_bank_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sisco_bank_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "1"
+      RAILS_SERVE_STATIC_FILES: "1"
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SISCO_BANK_DATABASE_PASSWORD: ${SISCO_BANK_DATABASE_PASSWORD}
+      DATABASE_URL: postgres://sisco_bank:${SISCO_BANK_DATABASE_PASSWORD}@db:5432/sisco_bank_production
+      PORT: "80"
+    ports:
+      - "8030:80"
+    volumes:
+      - app_storage:/rails/storage
+
+volumes:
+  postgres_data:
+  app_storage:

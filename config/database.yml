@@ -90,6 +90,8 @@ production:
     database: sisco_bank_production
     username: sisco_bank
     password: <%= ENV["SISCO_BANK_DATABASE_PASSWORD"] %>
+    host: <%= ENV.fetch("DB_HOST", "db") %>
+    port: <%= ENV.fetch("DB_PORT", 5432) %>
   cache:
     <<: *primary_production
     database: sisco_bank_production_cache

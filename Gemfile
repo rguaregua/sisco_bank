@@ -35,7 +35,10 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
-# gem "rack-cors"
+gem "rack-cors"
+
+gem "kaminari"
+gem "active_model_serializers"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -50,15 +53,8 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
-
-  gem 'kaminari'                  # Paginación [cite: 71]
-  gem 'active_model_serializers'   # Serialización JSON limpia 
-  gem 'rack-cors'                  # Permite que tu Front-end externo se conecte
-
-group :development, :test do
-  gem 'rspec-rails'              # Pruebas automatizadas 
-  gem 'factory_bot_rails'        # Creación de instancias de prueba
-  gem 'faker'                    # Generador de datos aleatorios para los Seeds 
-  end
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
 
 end
